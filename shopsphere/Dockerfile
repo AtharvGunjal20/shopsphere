@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y libcurl4-openssl-dev libonig-dev \
     && printf '\n<Directory /var/www/html/public>\n    AllowOverride All\n    Require all granted\n</Directory>\n' >> /etc/apache2/apache2.conf \
     && rm -rf /var/lib/apt/lists/*
 
+RUN printf 'log_errors=On\nerror_log=/proc/self/fd/2\ndisplay_errors=Off\n' > /usr/local/etc/php/conf.d/zz-render-logging.ini
+
 WORKDIR /var/www/html
 
 COPY . .
