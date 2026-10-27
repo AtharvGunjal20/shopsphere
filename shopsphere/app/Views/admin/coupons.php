@@ -1,0 +1,14 @@
+<h1 class="h4 fw-bold mb-3">Coupons</h1>
+<div class="table-responsive bg-white rounded-3 shadow-sm mb-4"><table class="table align-middle mb-0"><thead><tr><th>Code</th><th>Offer</th><th>Min order</th><th>Used</th><th>Expires</th><th>Status</th></tr></thead><tbody>
+<?php foreach ($coupons as $c): ?><tr><td><strong><?= e($c['code']) ?></strong></td><td class="small"><?= $c['type'] === 'percent' ? e(rtrim(rtrim((string)$c['value'], '0'), '.')) . '%' : e(inr($c['value'])) ?><?= $c['max_discount'] ? ' (max ' . e(inr($c['max_discount'])) . ')' : '' ?><div class="text-muted"><?= e($c['description']) ?></div></td><td><?= e(inr($c['min_order'])) ?></td><td><?= (int)$c['used_count'] ?><?= $c['usage_limit'] !== null ? ' / ' . (int)$c['usage_limit'] : '' ?></td><td class="small"><?= $c['expires_at'] ? e(date('j M Y', strtotime($c['expires_at']))) : '—' ?></td><td><?= $c['is_active'] ? '<span class="badge text-bg-success">Active</span>' : '<span class="badge text-bg-secondary">Off</span>' ?></td></tr><?php endforeach; ?></tbody></table></div>
+<h2 class="h6">Add or update a coupon (same code updates)</h2>
+<form method="post" action="<?= e(url('admin/coupons')) ?>" class="bg-white rounded-3 shadow-sm p-3 row g-2" style="max-width:900px"><?= csrf_field() ?>
+<div class="col-md-3"><label class="form-label small" for="cc">Code</label><input class="form-control text-uppercase" id="cc" name="code" required maxlength="30"></div>
+<div class="col-md-3"><label class="form-label small" for="ct">Type</label><select class="form-select" id="ct" name="type"><option value="percent">Percent</option><option value="flat">Flat ₹</option></select></div>
+<div class="col-md-3"><label class="form-label small" for="cv">Value</label><input class="form-control" id="cv" name="value" type="number" step="0.01" min="1" required></div>
+<div class="col-md-3"><label class="form-label small" for="cm">Min order (₹)</label><input class="form-control" id="cm" name="min_order" type="number" min="0" value="0"></div>
+<div class="col-md-3"><label class="form-label small" for="cx">Max discount (₹)</label><input class="form-control" id="cx" name="max_discount" type="number" min="0"></div>
+<div class="col-md-3"><label class="form-label small" for="ce">Expires</label><input class="form-control" id="ce" name="expires_at" type="date"></div>
+<div class="col-md-3"><label class="form-label small" for="cl">Usage limit</label><input class="form-control" id="cl" name="usage_limit" type="number" min="1"></div>
+<div class="col-md-3 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" name="is_active" value="1" id="ca" checked><label class="form-check-label" for="ca">Active</label></div></div>
+<div class="col-12"><label class="form-label small" for="cd">Description</label><input class="form-control" id="cd" name="description" maxlength="190"></div><div class="col-12"><button class="btn btn-warning">Save coupon</button></div></form>

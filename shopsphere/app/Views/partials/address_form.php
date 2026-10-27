@@ -1,0 +1,11 @@
+<?php /** @var string $prefix @var array $a */ $v = fn($k) => e(old($prefix . $k, $a[$k] ?? '')); ?>
+<div class="row g-2">
+<div class="col-md-6"><label class="form-label small" for="<?= $prefix ?>full_name">Full name</label><input class="form-control" id="<?= $prefix ?>full_name" name="<?= $prefix ?>full_name" value="<?= $v('full_name') ?>" required autocomplete="name"></div>
+<div class="col-md-6"><label class="form-label small" for="<?= $prefix ?>phone">Mobile number</label><input class="form-control" id="<?= $prefix ?>phone" name="<?= $prefix ?>phone" inputmode="numeric" maxlength="12" value="<?= $v('phone') ?>" required autocomplete="tel-national"></div>
+<div class="col-12"><label class="form-label small" for="<?= $prefix ?>line1">House no., building, street</label><input class="form-control" id="<?= $prefix ?>line1" name="<?= $prefix ?>line1" value="<?= $v('line1') ?>" required autocomplete="address-line1"></div>
+<div class="col-md-6"><label class="form-label small" for="<?= $prefix ?>line2">Area / locality</label><input class="form-control" id="<?= $prefix ?>line2" name="<?= $prefix ?>line2" value="<?= $v('line2') ?>" autocomplete="address-line2"></div>
+<div class="col-md-6"><label class="form-label small" for="<?= $prefix ?>landmark">Landmark (optional)</label><input class="form-control" id="<?= $prefix ?>landmark" name="<?= $prefix ?>landmark" value="<?= $v('landmark') ?>"></div>
+<div class="col-md-4"><label class="form-label small" for="<?= $prefix ?>pincode">PIN code</label><input class="form-control" id="<?= $prefix ?>pincode" name="<?= $prefix ?>pincode" inputmode="numeric" maxlength="6" value="<?= $v('pincode') ?>" required autocomplete="postal-code"></div>
+<div class="col-md-4"><label class="form-label small" for="<?= $prefix ?>city">City</label><input class="form-control" id="<?= $prefix ?>city" name="<?= $prefix ?>city" value="<?= $v('city') ?>" required autocomplete="address-level2"></div>
+<div class="col-md-4"><label class="form-label small" for="<?= $prefix ?>state">State</label><select class="form-select" id="<?= $prefix ?>state" name="<?= $prefix ?>state" required autocomplete="address-level1"><option value="">Select</option><?php foreach (indian_states() as $s): ?><option <?= old($prefix . 'state', $a['state'] ?? '') === $s ? 'selected' : '' ?>><?= e($s) ?></option><?php endforeach; ?></select></div>
+</div>

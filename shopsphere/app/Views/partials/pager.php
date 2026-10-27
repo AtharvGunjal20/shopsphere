@@ -1,0 +1,1 @@
+<?php if ($pages > 1): $qs = $_GET; ?><nav class="mt-3"><ul class="pagination pagination-sm"><?php for ($i = 1; $i <= $pages; $i++): $qs['page'] = $i; ?><li class="page-item <?= $i === $page ? 'active' : '' ?>"><a class="page-link" href="?<?= e(http_build_query($qs)) ?>"><?= $i ?></a></li><?php endfor; ?></ul></nav><?php endif; ?>

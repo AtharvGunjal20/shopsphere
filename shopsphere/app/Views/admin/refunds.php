@@ -1,0 +1,6 @@
+<h1 class="h4 fw-bold mb-3">Refunds</h1>
+<div class="table-responsive bg-white rounded-3 shadow-sm"><table class="table align-middle mb-0"><thead><tr><th>Order</th><th>Amount</th><th>Method</th><th>Note</th><th>Status</th><th></th></tr></thead><tbody>
+<?php foreach ($refunds as $r): ?><tr><td><a href="<?= e(url('admin/orders/' . $r['order_no'])) ?>"><?= e($r['order_no']) ?></a><div class="small text-muted"><?= e($r['customer_name']) ?></div></td><td><?= e(inr($r['amount'])) ?></td><td><?= e($r['method']) ?></td><td class="small"><?= e($r['note']) ?></td><td><?= status_badge($r['status']) ?></td>
+<td><?php if ($r['status'] !== 'processed'): ?><form method="post" action="<?= e(url('admin/refunds/' . $r['id'] . '/process')) ?>" data-confirm="Process this refund of <?= e(inr($r['amount'])) ?>?"><?= csrf_field() ?><button class="btn btn-sm btn-dark">Process</button></form><?php endif; ?></td></tr><?php endforeach; ?>
+<?php if (!$refunds): ?><tr><td colspan="6" class="text-center text-muted py-4">No refunds.</td></tr><?php endif; ?></tbody></table></div>
+<p class="small text-muted mt-2">Razorpay refunds call the Razorpay API; COD refunds are marked as processed after you return the money manually.</p>

@@ -1,0 +1,6 @@
+<h1 class="h4 fw-bold mb-3">Users</h1>
+<div class="table-responsive bg-white rounded-3 shadow-sm"><table class="table align-middle mb-0"><thead><tr><th>Name</th><th>Email</th><th>Orders</th><th>Joined</th><th>Role / status</th></tr></thead><tbody>
+<?php foreach ($users as $x): ?><tr><td><?= e($x['name']) ?></td><td class="small"><?= e($x['email']) ?></td><td><?= (int)$x['orders'] ?></td><td class="small"><?= e(date('j M Y', strtotime($x['created_at']))) ?></td>
+<td><?php if ((int)$x['id'] === (int)$adminUser['id']): ?><span class="text-muted small">You</span><?php else: ?><form method="post" action="<?= e(url('admin/users/' . $x['id'])) ?>" class="d-flex gap-1"><?= csrf_field() ?>
+<select class="form-select form-select-sm" name="role" aria-label="Role"><?php foreach (['customer', 'staff', 'admin'] as $r): ?><option <?= $x['role'] === $r ? 'selected' : '' ?>><?= $r ?></option><?php endforeach; ?></select>
+<select class="form-select form-select-sm" name="status" aria-label="Status"><?php foreach (['active', 'blocked'] as $r): ?><option <?= $x['status'] === $r ? 'selected' : '' ?>><?= $r ?></option><?php endforeach; ?></select><button class="btn btn-sm btn-dark">Save</button></form><?php endif; ?></td></tr><?php endforeach; ?></tbody></table></div>

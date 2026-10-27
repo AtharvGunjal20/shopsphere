@@ -1,0 +1,6 @@
+# XAMPP convenience: http://localhost/shopsphere/ serves the public/ folder.
+# For production point your virtual host's DocumentRoot at /public instead.
+Options -Indexes
+RewriteEngine On
+RewriteRule ^$ public/ [L]
+RewriteRule (.*) public/$1 [L]

@@ -1,0 +1,1 @@
+<div class="text-center py-5"><i class="bi bi-compass display-3 text-muted"></i><h1 class="h3 mt-3">Page not found</h1><p class="text-muted">The page you are looking for does not exist or has moved.</p><a class="btn btn-warning" href="<?= e(url('/')) ?>">Back to home</a></div>
