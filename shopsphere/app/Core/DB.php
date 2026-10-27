@@ -1,3 +1,4 @@
+
 <?php
 declare(strict_types=1);
 
@@ -14,13 +15,38 @@ final class DB
     {
         if (self::$pdo === null) {
             $c = cfg('db');
-            self::$pdo = new PDO($c['dsn'], $c['user'], $c['pass'], [
+
+            $options = [
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_EMULATE_PREPARES   => false,   // real prepared statements
-            ]);
-            if (self::driver() === 'sqlite') self::$pdo->exec('PRAGMA foreign_keys = ON');
+                PDO::ATTR_EMULATE_PREPARES   => false,
+            ];
+
+            // Configure SSL for the Aiven MySQL connection.
+            $ca = dirname(__DIR__, 2) . '/config/ca.pem';
+
+            if (str_starts_with($c['dsn'], 'mysql:') && is_file($ca)) {
+                if (defined('PDO::MYSQL_ATTR_SSL_CA')) {
+                    $options[constant('PDO::MYSQL_ATTR_SSL_CA')] = $ca;
+                }
+
+                if (defined('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')) {
+                    $options[constant('PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT')] = true;
+                }
+            }
+
+            self::$pdo = new PDO(
+                $c['dsn'],
+                $c['user'],
+                $c['pass'],
+                $options
+            );
+
+            if (self::driver() === 'sqlite') {
+                self::$pdo->exec('PRAGMA foreign_keys = ON');
+            }
         }
+
         return self::$pdo;
     }
 
@@ -31,7 +57,9 @@ final class DB
 
     private static function pdo_driver(): string
     {
-        return self::$pdo ? self::$pdo->getAttribute(PDO::ATTR_DRIVER_NAME) : 'mysql';
+        return self::$pdo
+            ? self::$pdo->getAttribute(PDO::ATTR_DRIVER_NAME)
+            : 'mysql';
     }
 
     public static function q(string $sql, array $params = []): PDOStatement
@@ -65,24 +93,46 @@ final class DB
 
     private static function ident(string $s): string
     {
-        if (!preg_match('/^[a-z_][a-z0-9_]*$/', $s)) throw new \InvalidArgumentException('Bad identifier: ' . $s);
+        if (!preg_match('/^[a-z_][a-z0-9_]*$/', $s)) {
+            throw new \InvalidArgumentException('Bad identifier: ' . $s);
+        }
+
         return $s;
     }
 
     public static function insert(string $table, array $data): int
     {
         $cols = array_map([self::class, 'ident'], array_keys($data));
-        $sql = 'INSERT INTO ' . self::ident($table) . ' (' . implode(',', $cols) . ') VALUES (' . implode(',', array_fill(0, count($cols), '?')) . ')';
+
+        $sql = 'INSERT INTO ' . self::ident($table)
+            . ' (' . implode(',', $cols) . ') VALUES ('
+            . implode(',', array_fill(0, count($cols), '?')) . ')';
+
         self::q($sql, array_values($data));
-        return (int)self::pdo()->lastInsertId();
+
+        return (int) self::pdo()->lastInsertId();
     }
 
     /** $where is a SQL fragment with ? placeholders, e.g. "id = ?" */
-    public static function update(string $table, array $data, string $where, array $whereParams = []): int
-    {
-        $sets = array_map(fn($c) => self::ident($c) . ' = ?', array_keys($data));
-        $sql = 'UPDATE ' . self::ident($table) . ' SET ' . implode(', ', $sets) . ' WHERE ' . $where;
-        return self::exec($sql, [...array_values($data), ...$whereParams]);
+    public static function update(
+        string $table,
+        array $data,
+        string $where,
+        array $whereParams = []
+    ): int {
+        $sets = array_map(
+            fn($c) => self::ident($c) . ' = ?',
+            array_keys($data)
+        );
+
+        $sql = 'UPDATE ' . self::ident($table)
+            . ' SET ' . implode(', ', $sets)
+            . ' WHERE ' . $where;
+
+        return self::exec(
+            $sql,
+            [...array_values($data), ...$whereParams]
+        );
     }
 
     /** Row lock suffix; only meaningful on MySQL/InnoDB. */
@@ -94,14 +144,22 @@ final class DB
     public static function tx(callable $fn): mixed
     {
         $pdo = self::pdo();
-        if ($pdo->inTransaction()) return $fn();
+
+        if ($pdo->inTransaction()) {
+            return $fn();
+        }
+
         $pdo->beginTransaction();
+
         try {
             $r = $fn();
             $pdo->commit();
             return $r;
         } catch (\Throwable $e) {
-            if ($pdo->inTransaction()) $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+
             throw $e;
         }
     }
