@@ -1,4 +1,3 @@
-
 <?php
 declare(strict_types=1);
 
@@ -22,7 +21,6 @@ final class DB
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ];
 
-            // Configure SSL for the Aiven MySQL connection.
             $ca = dirname(__DIR__, 2) . '/config/ca.pem';
 
             if (str_starts_with($c['dsn'], 'mysql:') && is_file($ca)) {
@@ -66,6 +64,7 @@ final class DB
     {
         $st = self::pdo()->prepare($sql);
         $st->execute($params);
+
         return $st;
     }
 
@@ -77,12 +76,14 @@ final class DB
     public static function one(string $sql, array $params = []): ?array
     {
         $r = self::q($sql, $params)->fetch();
+
         return $r === false ? null : $r;
     }
 
     public static function val(string $sql, array $params = []): mixed
     {
         $r = self::q($sql, $params)->fetchColumn();
+
         return $r === false ? null : $r;
     }
 
@@ -154,6 +155,7 @@ final class DB
         try {
             $r = $fn();
             $pdo->commit();
+
             return $r;
         } catch (\Throwable $e) {
             if ($pdo->inTransaction()) {
